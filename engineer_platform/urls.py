@@ -22,11 +22,13 @@ from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # Наши приложения (потом добавим свои роутеры)
-    path("api/", include("users.urls")),  # пример, потом поменяем
+    # Приложения
+    path("api/", include("users.urls")),
     path("api/", include("posts.urls")),
     path("api/", include("payments.urls")),
-    # и т.д.
+    path("api/", include("notifications.urls")),
+    path("api/", include("themes.urls")),
+    path("api/", include("core.urls")),
 ]
 
 if settings.DEBUG:

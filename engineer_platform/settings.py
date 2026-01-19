@@ -133,7 +133,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Custom user model
-# AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = "users.User"
 
 # REST Framework + JWT
 REST_FRAMEWORK = {
@@ -149,6 +149,10 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,
     "SIGNING_KEY": env("JWT_SECRET"),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
 }
 
 # Bootstrap 5
