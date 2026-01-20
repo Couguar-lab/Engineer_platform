@@ -64,7 +64,7 @@ class User(AbstractUser):
     date_joined = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = "phone_number"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS: list[str] = []
 
     objects = UserManager()  # нужно будет создать менеджер ниже
 

@@ -1,8 +1,9 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from users.models import User
+
 from posts.models import Post
-from django.core.validators import MinValueValidator
+from users.models import User
 
 
 class Subscription(models.Model):
@@ -15,7 +16,9 @@ class Subscription(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="subscriptions")
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="subscribers", limit_choices_to={"is_author": True})
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="subscribers", limit_choices_to={"is_author": True}
+    )
     period_months = models.PositiveSmallIntegerField(_("period in months"), choices=PERIOD_CHOICES)
     price = models.DecimalField(_("price"), max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     start_date = models.DateTimeField(_("start date"), auto_now_add=True)
