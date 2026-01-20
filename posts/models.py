@@ -2,9 +2,9 @@ from typing import Self
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
+from django.utils import timezone
 from users.models import User
-
+from payments.models import Subscription
 
 class Tag(models.Model):
     """
@@ -50,3 +50,19 @@ class Post(models.Model):
 
     def __str__(self) -> str:
         return f"{self.title} от {self.author.phone_number}"
+
+    def can_view(self, user: User) -> bool:
+        """
+        Проверяет, может ли пользователь просмотреть запись.
+        Бесплатные — всем, платные — только подписчикам автора.
+        """
+        if not self.is_paid:
+            return True
+        if not user.is_authenticated:
+            return False
+        return Subscription.objects.filter(
+            user=user,
+            author=self.author,
+            is_active=True,
+            end_date__gte=timezone.now()
+        ).exists()
