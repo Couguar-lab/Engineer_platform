@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% load bootstrap5 %}
+{% load django_bootstrap5 %}
+{% load custom_filters %}
 
 {% block title %}{{ post.title }} - Engineer Platform{% endblock %}
 
@@ -14,7 +15,7 @@
         Просмотров: {{ post.views }} | Лайков: {{ post.likes }}
       </p>
 
-      {% if post.can_view user %}
+      {% if has_access %}
         <!-- Полный доступ -->
         <div class="card mb-4 shadow-sm">
           <div class="card-body">
@@ -50,7 +51,7 @@
               <form method="post" action="{% url 'create_subscription' post.author.id months %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary">
-                  Подписаться на {{ label }} ({{ prices|lookup:months }} ₽)
+                  {{ label }} ({{ prices|get_item:months }} ₽)
                 </button>
               </form>
             {% endfor %}
@@ -67,7 +68,6 @@
     </div>
 
     <div class="col-lg-4">
-      <!-- Сайдбар (можно добавить позже: автор, похожие посты, подписка) -->
       <div class="card mb-4">
         <div class="card-body">
           <h5>Автор</h5>
