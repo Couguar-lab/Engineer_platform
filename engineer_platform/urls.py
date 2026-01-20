@@ -19,6 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from payments.views import stripe_webhook
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -29,6 +30,7 @@ urlpatterns = [
     path("api/", include("notifications.urls")),
     path("api/", include("themes.urls")),
     path("api/", include("core.urls")),
+    path('webhook/stripe/', stripe_webhook, name='stripe_webhook'),
 ]
 
 if settings.DEBUG:
