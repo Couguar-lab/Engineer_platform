@@ -32,6 +32,7 @@ urlpatterns = [
     path("api/", include("core.urls")),
     path('webhook/stripe/', stripe_webhook, name='stripe_webhook'),
     path('subscribe/<int:author_id>/<int:period>/', create_subscription, name='create_subscription'),
+    path('posts/', include('posts.urls')),
 ]
 
 if settings.DEBUG:

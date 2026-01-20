@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load bootstrap5 %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1 class="mb-4">{{ post.title }}</h1>
+  <p class="text-muted">Автор: {{ post.author.phone_number }} | {{ post.created_at|date:"d.m.Y H:i" }}</p>
+
+  {% if post.can_view user %}
+    <!-- Полный контент доступен -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <p class="card-text">{{ post.content|linebreaks }}</p>
+
+        {% if post.youtube_link %}
+          <div class="ratio ratio-16x9 mb-3">
+            <iframe src="{{ post.youtube_link }}" allowfullscreen></iframe>
+          </div>
+        {% endif %}
+
+        {% if post.images %}
+          <img src="{{ post.images.url }}" class="img-fluid rounded" alt="{{ post.title }}">
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+    <!-- Teaser + кнопка подписки -->
+    <div class="alert alert-info">
+      <h4>Эта запись платная</h4>
+      <p>Подпишитесь на автора, чтобы увидеть полный контент.</p>
+
+      <div class="d-flex gap-2">
+        {% for period, label in periods %}
+          <form method="post" action="{% url 'create_subscription' post.author.id period %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">
+              Подписаться на {{ label }} ({{ prices|lookup:period }} ₽)
+            </button>
+          </form>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
