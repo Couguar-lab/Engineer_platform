@@ -19,7 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-from payments.views import stripe_webhook
+from payments.views import stripe_webhook, create_subscription
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -31,6 +31,7 @@ urlpatterns = [
     path("api/", include("themes.urls")),
     path("api/", include("core.urls")),
     path('webhook/stripe/', stripe_webhook, name='stripe_webhook'),
+    path('subscribe/<int:author_id>/<int:period>/', create_subscription, name='create_subscription'),
 ]
 
 if settings.DEBUG:

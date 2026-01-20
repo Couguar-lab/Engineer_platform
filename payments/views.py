@@ -1,9 +1,14 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 import stripe
 import json
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from .stripe_utils import create_checkout_session
+from users.models import User
 
 
 @csrf_exempt
@@ -61,3 +66,24 @@ def stripe_webhook(request):
         )
 
     return HttpResponse(status=200)
+
+@login_required
+@require_POST
+def create_subscription(request: HttpRequest, author_id: int, period: int) -> HttpResponse:
+    """
+    Создаёт Stripe Checkout сессию для подписки на автора.
+    Редиректит пользователя на оплату.
+    """
+    author = get_object_or_404(User, id=author_id, is_author=True)
+
+    if author == request.user:
+        return redirect('post_list')  # Нельзя подписаться на себя
+
+    session_data = create_checkout_session(
+        user_id=request.user.id,
+        author_id=author.id,
+        period_months=period,
+        request=request,
+    )
+
+    return redirect(session_data['url'])

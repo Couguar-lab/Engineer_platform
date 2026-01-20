@@ -1,33 +1,47 @@
 import stripe
 from django.conf import settings
+from django.urls import reverse
+from django.http import HttpRequest
+from typing import Dict, Any
 
-from users.models import User
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
-def create_checkout_session(
-    user: User,
-    author: User,
-    period_months: int,
-    success_url: str,
-    cancel_url: str,
-) -> stripe.checkout.Session:
-    """
-    Создаёт Stripe Checkout сессию для подписки на автора.
-    """
-    # Находим price ID по периоду
-    price_map = {
-        1: "price_1SrjKeDNYXEsSHzUE5ADzexq",
-        3: "price_1SrjOfDNYXEsSHzU7hbTGkEg",
-        6: "price_1SrjOfDNYXEsSHzU3LovZiVP",
-        9: "price_1SrjOfDNYXEsSHzUv55DAnDk",
-        12: "price_1SrjOfDNYXEsSHzUi5gMlMeo",
-    }
+PRICE_MAP = {
+    1: "price_1SrjKeDNYXEsSHzUE5ADzexq",
+    3: "price_1SrjOfDNYXEsSHzU7hbTGkEg",
+    6: "price_1SrjOfDNYXEsSHzU3LovZiVP",
+    9: "price_1SrjOfDNYXEsSHzUv55DAnDk",
+    12: "price_1SrjOfDNYXEsSHzUi5gMlMeo",
+}
 
-    price_id = price_map.get(period_months)
+
+def get_price_id(period_months: int) -> str:
+    """
+    Возвращает ID цены Stripe для выбранного периода подписки.
+    """
+    price_id = PRICE_MAP.get(period_months)
     if not price_id:
-        raise ValueError("Неверный период подписки")
+        raise ValueError(f"Нет цены для периода {period_months} месяцев")
+    return price_id
+
+
+def create_checkout_session(
+    user_id: int,
+    author_id: int,
+    period_months: int,
+    request: HttpRequest,
+) -> Dict[str, Any]:
+    """
+    Создаёт Stripe Checkout-сессию для подписки на автора.
+    Возвращает словарь с id сессии и url для редиректа.
+    """
+    price_id = get_price_id(period_months)
+
+    # URL успеха и отмены
+    success_url = request.build_absolute_uri(reverse('post_list')) + '?session_id={CHECKOUT_SESSION_ID}'
+    cancel_url = request.build_absolute_uri(reverse('post_list'))
 
     session = stripe.checkout.Session.create(
         payment_method_types=['card'],
@@ -38,12 +52,15 @@ def create_checkout_session(
         mode='subscription',
         success_url=success_url,
         cancel_url=cancel_url,
-        client_reference_id=f"{user.id}_{author.id}_{period_months}",
+        client_reference_id=f"{user_id}_{author_id}_{period_months}",
         metadata={
-            'user_id': user.id,
-            'author_id': author.id,
-            'period_months': period_months,
+            'user_id': str(user_id),
+            'author_id': str(author_id),
+            'period_months': str(period_months),
         }
     )
 
-    return session
+    return {
+        'id': session.id,
+        'url': session.url,
+    }
