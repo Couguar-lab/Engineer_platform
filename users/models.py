@@ -1,76 +1,106 @@
-from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import AbstractUser
+from typing import Any, List
+
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-class UserManager(BaseUserManager):
+class UserManager(BaseUserManager["User"]):
+    """
+    Менеджер для создания пользователей и суперпользователей по номеру телефона.
+    """
+
     use_in_migrations = True
 
-    def _create_user(self, phone_number, password, **extra_fields):
+    def _create_user(
+        self,
+        phone_number: str,
+        password: str | None,
+        **extra_fields: Any,
+    ) -> "User":
+        """
+        Внутренний метод создания пользователя.
+        """
         if not phone_number:
-            raise ValueError("The given phone number must be set")
+            raise ValueError("Номер телефона обязателен")
         user = self.model(phone_number=phone_number, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_user(self, phone_number, password=None, **extra_fields):
+    def create_user(
+        self,
+        phone_number: str,
+        password: str | None = None,
+        **extra_fields: Any,
+    ) -> "User":
+        """
+        Создаёт обычного пользователя.
+        """
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(phone_number, password, **extra_fields)
 
-    def create_superuser(self, phone_number, password=None, **extra_fields):
+    def create_superuser(
+        self,
+        phone_number: str,
+        password: str | None = None,
+        **extra_fields: Any,
+    ) -> "User":
+        """
+        Создаёт суперпользователя.
+        """
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
         if extra_fields.get("is_staff") is not True:
-            raise ValueError("Superuser must have is_staff=True.")
+            raise ValueError("Суперпользователь должен иметь is_staff=True.")
         if extra_fields.get("is_superuser") is not True:
-            raise ValueError("Superuser must have is_superuser=True.")
+            raise ValueError("Суперпользователь должен иметь is_superuser=True.")
 
         return self._create_user(phone_number, password, **extra_fields)
 
 
 class User(AbstractUser):
-    username = None  # отключаем username, так как регистрируемся по телефону
-    email = None  # отключаем email
+    """
+    Пользователь платформы, регистрируется и аутентифицируется по номеру телефона.
+    """
+
+    username = None
+    email = None
 
     phone_number = models.CharField(
-        _("phone number"),
+        _("номер телефона"),
         max_length=20,
         unique=True,
-        help_text=_("Required. Phone number in international format, e.g. +79123456789"),
+        help_text=_("Обязательное поле. Номер в международном формате, например +79123456789"),
         error_messages={
-            "unique": _("A user with this phone number already exists."),
+            "unique": _("Пользователь с таким номером телефона уже существует."),
         },
     )
 
     is_author = models.BooleanField(
-        _("is author"),
+        _("автор"),
         default=False,
-        help_text=_("Designates whether this user can publish posts."),
+        help_text=_("Указывает, может ли пользователь публиковать записи."),
     )
 
     is_moderator = models.BooleanField(
-        _("is moderator"),
+        _("модератор"),
         default=False,
-        help_text=_("Designates whether this user has moderator privileges."),
+        help_text=_("Указывает, имеет ли пользователь права модератора."),
     )
 
-    # Отключаем ненужные поля из AbstractUser
-    first_name = None
-    last_name = None
     date_joined = models.DateTimeField(auto_now_add=True)
 
-    USERNAME_FIELD = "phone_number"
-    REQUIRED_FIELDS = []
+    USERNAME_FIELD: str = "phone_number"
+    REQUIRED_FIELDS: List[str] = []
 
-    objects = UserManager()  # нужно будет создать менеджер ниже
+    objects = UserManager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.phone_number
 
     class Meta:
-        verbose_name = _("user")
-        verbose_name_plural = _("users")
+        verbose_name = _("пользователь")
+        verbose_name_plural = _("пользователи")

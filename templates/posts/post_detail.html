@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+{% load custom_filters %}
+
+{% block title %}{{ post.title }} - Engineer Platform{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-lg-8">
+      <h1 class="mb-4">{{ post.title }}</h1>
+      <p class="text-muted mb-4">
+        Автор: {{ post.author.phone_number }} |
+        {{ post.created_at|date:"d.m.Y H:i" }} |
+        Просмотров: {{ post.views }} | Лайков: {{ post.likes }}
+      </p>
+
+      {% if has_access %}
+        <!-- Полный доступ -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-body">
+            <div class="post-content mb-4">
+              {{ post.content|linebreaks }}
+            </div>
+
+            {% if post.youtube_link %}
+              <div class="ratio ratio-16x9 mb-4">
+                <iframe src="{{ post.youtube_link }}" title="YouTube video" allowfullscreen></iframe>
+              </div>
+            {% endif %}
+
+            {% if post.images %}
+              <img src="{{ post.images.url }}" class="img-fluid rounded mb-4" alt="{{ post.title }}">
+            {% endif %}
+
+            <div class="d-flex gap-2 flex-wrap">
+              {% for tag in post.tags.all %}
+                <span class="badge bg-secondary">{{ tag.name }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <!-- Teaser + подписка -->
+        <div class="alert alert-info shadow-sm">
+          <h4 class="alert-heading">Эта запись платная</h4>
+          <p>Подпишитесь на автора, чтобы получить доступ к полному контенту.</p>
+
+          <div class="d-flex flex-wrap gap-3 mt-4">
+            {% for months, label in periods %}
+              <form method="post" action="{% url 'create_subscription' post.author.id months %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">
+                  {{ label }} ({{ prices|get_item:months }} ₽)
+                </button>
+              </form>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Краткий тизер -->
+        <div class="card bg-light mb-4">
+          <div class="card-body">
+            <p class="lead">{{ post.content|truncatewords:50 }}</p>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5>Автор</h5>
+          <p>{{ post.author.phone_number }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
