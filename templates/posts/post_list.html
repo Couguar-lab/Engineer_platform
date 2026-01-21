@@ -1,10 +1,53 @@
 {% extends "base.html" %}
+{% load django_bootstrap5 %}
+{% load custom_filters %}
+{% block title %}Список постов{% endblock %}
 
 {% block content %}
-<h1>Список постов</h1>
-<ul>
-  {% for post in posts %}
-    <li><a href="{% url 'post_detail' post.id %}">{{ post.title }}</a></li>
-  {% endfor %}
-</ul>
+<div class="container mt-5">
+  <h1>Список постов</h1>
+  <div class="row">
+    {% for post in posts %}
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 shadow-sm">
+          {% if post.images %}
+            <img src="{{ post.images.url }}" class="card-img-top" alt="{{ post.title }}" style="height: 200px; object-fit: cover;">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ post.title }}</h5>
+            <p class="card-text text-muted">
+              Автор: {{ post.author.phone_number }} | {{ post.created_at|date:"d.m.Y" }}
+            </p>
+
+            {% if post.has_access %}
+              <p class="card-text">{{ post.content|truncatewords:30 }}</p>
+              <a href="{% url 'post_detail' post.id %}" class="btn btn-primary">Читать</a>
+            {% else %}
+              <p class="card-text text-muted">{{ post.content|truncatewords:20 }}</p>
+              {% if post.is_paid %}
+                <div class="alert alert-info mt-2">
+                  <small>Платный контент</small>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                  {% for months, label in periods %}
+                    <form method="post" action="{% url 'create_subscription' post.author.id months %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-primary">
+                        {{ label }} ({{ prices|get_item:months }} ₽)
+                      </button>
+                    </form>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <a href="{% url 'post_detail' post.id %}" class="btn btn-primary">Читать</a>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-center">Постов пока нет.</p>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}

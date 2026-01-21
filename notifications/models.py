@@ -21,6 +21,7 @@ class Notification(models.Model):
         verbose_name = _("уведомление")
         verbose_name_plural = _("уведомления")
         ordering = ["-created_at"]
+        app_label = "notifications"
 
     def __str__(self) -> str:
         return f"Уведомление для {self.user.phone_number}: {self.message[:50]}..."

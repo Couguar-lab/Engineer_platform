@@ -1,0 +1,105 @@
+/* Базовые стили для всех тем */
+/* Все переменные определяются в :root, переопределяются в классах body */
+
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --card-bg: #f8f9fa;
+  --navbar-bg: #343a40;
+  --primary: #0d6efd;
+  --muted: #6c757d;
+}
+
+/* Светлая тема (по умолчанию) */
+body.light {
+  --bg-color: #ffffff;
+  --text-color: #212529;
+  --card-bg: #ffffff;
+  --primary: #0d6efd;
+}
+
+/* Тёмная тема */
+body.dark {
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --navbar-bg: #000000;
+  --primary: #bb86fc;
+  --muted: #b0b0b0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+/* Неон (премиум) */
+body.neon {
+  --bg-color: #0a001f;
+  --text-color: #00ffea;
+  --card-bg: #1a0033;
+  --primary: #ff00ff;
+  --muted: #00ffff;
+  background: linear-gradient(135deg, #0a001f, #1a0033);
+  color: var(--text-color);
+}
+
+/* Земляные тона (премиум) */
+body.earth {
+  --bg-color: #f5f5dc;
+  --text-color: #3e2723;
+  --card-bg: #e0d9c9;
+  --primary: #8d6e63;
+  --muted: #6d4c41;
+}
+
+/* Тёплый минимализм (премиум) */
+body.warm {
+  --bg-color: #fffaf0;
+  --text-color: #4a2c2a;
+  --card-bg: #fff0e5;
+  --primary: #e67e22;
+  --muted: #d35400;
+}
+
+/* Высокий контраст (премиум) */
+body.high-contrast {
+  --bg-color: #000000;
+  --text-color: #ffffff;
+  --card-bg: #111111;
+  --primary: #ffff00;
+  --muted: #cccccc;
+  border: 2px solid #ffff00;
+}
+
+/* Сепия / Ретро (премиум) */
+body.sepia {
+  --bg-color: #f4ecd8;
+  --text-color: #5d4037;
+  --card-bg: #e0d0b8;
+  --primary: #8d5524;
+  --muted: #a0785a;
+  filter: sepia(0.6);
+}
+
+/* Общие стили, зависящие от переменных */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-color: var(--muted);
+}
+
+.navbar {
+  background-color: var(--navbar-bg) !important;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.text-muted {
+  color: var(--muted) !important;
+}

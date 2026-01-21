@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+{% block title %}Создать запись{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Создать новую запись</h2>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <button type="submit" class="btn btn-primary mt-3">Опубликовать</button>
+  </form>
+</div>
+{% endblock %}

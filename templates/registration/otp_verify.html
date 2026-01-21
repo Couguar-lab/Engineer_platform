@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+{% block title %}Подтверждение OTP{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Подтверждение кода</h2>
+
+  <p>Введите 6-значный код, отправленный на {{ request.session.phone_number|default:"ваш номер" }}.</p>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form id="verify-form" method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="otp" class="form-label">Код OTP</label>
+      <input type="text" class="form-control" id="otp" name="otp" maxlength="6" pattern="\d{6}" required placeholder="123456">
+      <small class="form-text text-muted">
+        Если используете тестовый номер из Firebase Console — введите код, который вы указали при добавлении номера (например, 123456).
+      </small>
+    </div>
+    <button type="submit" class="btn btn-primary">Войти</button>
+  </form>
+
+  <script type="module">
+    // Firebase SDK (для отображения ошибок)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+    const firebaseConfig = {{ firebase_config|safe }};
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Обработка формы
+    document.getElementById('verify-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = document.getElementById('otp').value;
+
+      // Для тестового режима можно просто отправить код на сервер
+      const formData = new FormData();
+      formData.append('otp', code);
+      formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+      try {
+        const response = await fetch("{% url 'otp_verify' %}", {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.ok) {
+          window.location.href = "{% url 'post_list' %}";
+        } else {
+          const data = await response.json();
+          alert('Ошибка: ' + (data.error || 'Неверный код'));
+        }
+      } catch (error) {
+        console.error(error);
+        alert('Ошибка соединения');
+      }
+    });
+  </script>
+</div>
+{% endblock %}

@@ -1,13 +1,16 @@
+{% load static %}
 {% load django_bootstrap5 %}
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="{{ LANGUAGE_CODE|default:'ru' }}" {% if user_theme %}class="{{ user_theme.theme }}"{% endif %}>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Engineer Platform{% endblock %}</title>
     {% bootstrap_css %}
     {% bootstrap_javascript %}
+    <!-- Темы CSS (добавьте свои стили в static/css/themes.css или отдельные файлы) -->
+    <link rel="stylesheet" href="{% static 'css/themes.css' %}">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -20,14 +23,25 @@
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Привет, {{ user.phone_number }}</a>
+                            <a class="nav-link" href="{% url 'notification_list' %}">
+                                Уведомления
+                                {% if unread_notifications > 0 %}
+                                    <span class="badge bg-danger">{{ unread_notifications }}</span>
+                                {% endif %}
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'logout' %}">Выйти</a>
+                            <a class="nav-link" href="{% url 'profile' %}">Привет, {{ user.phone_number }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'logout' %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link nav-link text-white p-0">Выйти</button>
+                            </form>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Войти</a>
+                            <a class="nav-link" href="{% url 'login' %}">Войти</a>
                         </li>
                     {% endif %}
                 </ul>

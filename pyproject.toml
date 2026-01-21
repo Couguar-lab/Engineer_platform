@@ -11,3 +11,14 @@ target-version = ['py313']
 profile = "black"
 line_length = 120
 
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "engineer_platform.settings"
+python_files = "tests.py test_*.py *_tests.py"
+addopts = "-ra --cov --cov-report=term-missing --cov-report=html"
+testpaths = [
+    "posts/tests",
+    "users/tests",
+    "payments/tests",
+    "notifications/tests",
+    "themes/tests"
+]

@@ -27,6 +27,7 @@ class Theme(models.Model):
     class Meta:
         verbose_name = _("тема")
         verbose_name_plural = _("темы")
+        app_label = "themes"
 
     def __str__(self) -> str:
         return f"Тема пользователя {self.user.phone_number}: {self.theme}"

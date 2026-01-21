@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load django_bootstrap5 %}
 {% load custom_filters %}
-
 {% block title %}{{ post.title }} - Engineer Platform{% endblock %}
 
 {% block content %}
@@ -57,6 +56,18 @@
             {% endfor %}
           </div>
         </div>
+
+      <!-- Форма жалобы -->
+    <div class="mt-4">
+        <h5>Пожаловаться на пост</h5>
+        <form method="post" action="{% url 'complain_post' post.id %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <textarea name="reason" class="form-control" rows="3" placeholder="Причина жалобы..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-danger">Отправить жалобу</button>
+        </form>
+    </div>
 
         <!-- Краткий тизер -->
         <div class="card bg-light mb-4">
