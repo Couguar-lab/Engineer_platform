@@ -12,15 +12,7 @@ class UserManager(BaseUserManager["User"]):
 
     use_in_migrations = True
 
-    def _create_user(
-        self,
-        phone_number: str,
-        password: str | None,
-        **extra_fields: Any,
-    ) -> "User":
-        """
-        Внутренний метод создания пользователя.
-        """
+    def _create_user(self, phone_number: str, password: str | None, **extra_fields: Any) -> "User":
         if not phone_number:
             raise ValueError("Номер телефона обязателен")
         user = self.model(phone_number=phone_number, **extra_fields)
@@ -28,28 +20,12 @@ class UserManager(BaseUserManager["User"]):
         user.save(using=self._db)
         return user
 
-    def create_user(
-        self,
-        phone_number: str,
-        password: str | None = None,
-        **extra_fields: Any,
-    ) -> "User":
-        """
-        Создаёт обычного пользователя.
-        """
+    def create_user(self, phone_number: str, password: str | None = None, **extra_fields: Any) -> "User":
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(phone_number, password, **extra_fields)
 
-    def create_superuser(
-        self,
-        phone_number: str,
-        password: str | None = None,
-        **extra_fields: Any,
-    ) -> "User":
-        """
-        Создаёт суперпользователя.
-        """
+    def create_superuser(self, phone_number: str, password: str | None = None, **extra_fields: Any) -> "User":
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
@@ -74,9 +50,7 @@ class User(AbstractUser):
         max_length=20,
         unique=True,
         help_text=_("Обязательное поле. Номер в международном формате, например +79123456789"),
-        error_messages={
-            "unique": _("Пользователь с таким номером телефона уже существует."),
-        },
+        error_messages={"unique": _("Пользователь с таким номером телефона уже существует.")},
     )
 
     is_author = models.BooleanField(
@@ -104,3 +78,4 @@ class User(AbstractUser):
     class Meta:
         verbose_name = _("пользователь")
         verbose_name_plural = _("пользователи")
+        app_label = "users"

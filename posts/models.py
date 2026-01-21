@@ -1,10 +1,12 @@
 from typing import Self
 
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from users.models import User
+from django.utils.translation import gettext_lazy as _
+
 from payments.models import Subscription
+from users.models import User
+
 
 class Tag(models.Model):
     """
@@ -16,6 +18,7 @@ class Tag(models.Model):
     class Meta:
         verbose_name = _("тег")
         verbose_name_plural = _("теги")
+        app_label = "posts"
 
     def __str__(self) -> str:
         return self.name
@@ -47,6 +50,7 @@ class Post(models.Model):
         verbose_name = _("запись")
         verbose_name_plural = _("записи")
         ordering = ["-created_at"]
+        app_label = "posts"
 
     def __str__(self) -> str:
         return f"{self.title} от {self.author.phone_number}"
@@ -54,15 +58,36 @@ class Post(models.Model):
     def can_view(self, user: User) -> bool:
         """
         Проверяет, может ли пользователь просмотреть запись.
-        Бесплатные — всем, платные — только подписчикам автора.
+        Бесплатные — всем, платные — только подписчикам автора с активной подпиской.
         """
         if not self.is_paid:
             return True
+        if user is None:
+            return False
         if not user.is_authenticated:
             return False
         return Subscription.objects.filter(
-            user=user,
-            author=self.author,
-            is_active=True,
-            end_date__gte=timezone.now()
+            user=user, author=self.author, is_active=True, end_date__gte=timezone.now()
         ).exists()
+
+
+class Complaint(models.Model):
+    """
+    Жалоба пользователя на пост.
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="complaints")
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="complaints")
+    reason = models.TextField(_("причина жалобы"))
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved = models.BooleanField(_("решено"), default=False)
+    moderator_note = models.TextField(_("заметка модератора"), blank=True)
+
+    class Meta:
+        verbose_name = _("жалоба")
+        verbose_name_plural = _("жалобы")
+        unique_together = ["user", "post"]
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Жалоба от {self.user.phone_number} на пост '{self.post.title}'"

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 static %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Вход по номеру телефона</h2>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form id="phone-form" method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="phone_number" class="form-label">Номер телефона (+7...)</label>
+      <input type="tel" class="form-control" id="phone_number" name="phone_number" required placeholder="+79123456789">
+    </div>
+    <button type="submit" class="btn btn-primary" id="send-otp">Отправить OTP</button>
+  </form>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getAuth, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+    const firebaseConfig = {{ firebase_config|safe }};
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById('phone-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const phone = document.getElementById('phone_number').value;
+      try {
+        // Без reCAPTCHA — Firebase разрешит только для тестовых номеров
+        const confirmationResult = await signInWithPhoneNumber(auth, phone, null);
+        window.confirmationResult = confirmationResult;
+        alert('OTP отправлен (или используй тестовый код из Firebase)!');
+        window.location.href = "{% url 'otp_verify' %}";
+      } catch (error) {
+        console.error(error);
+        alert('Ошибка: ' + error.message);
+      }
+    });
+  </script>
+{% endblock %}

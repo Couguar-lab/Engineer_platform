@@ -45,6 +45,7 @@ class Subscription(models.Model):
         verbose_name = _("подписка")
         verbose_name_plural = _("подписки")
         unique_together = ["user", "author"]
+        app_label = "payments"
 
     def __str__(self) -> str:
         return f"{self.user.phone_number} подписан на {self.author.phone_number} на {self.period_months} мес."

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Профиль</h2>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5>Номер телефона: {{ user.phone_number }}</h5>
+      <p>Роли: 
+        {% if user.is_author %}Автор{% endif %}
+        {% if user.is_moderator %}Модератор{% endif %}
+        {% if user.is_superuser %}Администратор{% endif %}
+      </p>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5>Мои подписки</h5>
+      {% if subscriptions %}
+        <ul class="list-group">
+          {% for sub in subscriptions %}
+            <li class="list-group-item">
+              На автора: {{ sub.author.phone_number }} |
+              Период: {{ sub.get_period_months_display }} |
+              Цена: {{ sub.price }} ₽ |
+              Окончание: {{ sub.end_date|date:"d.m.Y" }} |
+              Активна: {% if sub.is_active %}Да{% else %}Нет{% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>У вас нет активных подписок.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5>Выбор темы</h5>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="theme" class="form-label">Выберите тему</label>
+          <select name="theme" id="theme" class="form-select">
+            {% for choice, label in theme.get_theme_choices %}
+              <option value="{{ choice }}" {% if theme.theme == choice %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <small class="text-muted">
+            {% if not has_active_subscription %}
+              Премиум-темы доступны только для пользователей с активной подпиской.
+            {% endif %}
+          </small>
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
