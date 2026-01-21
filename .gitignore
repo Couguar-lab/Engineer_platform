@@ -28,3 +28,5 @@ staticfiles/
 
 firebase-adminsdk.json
 secrets/
+
+# anything else
