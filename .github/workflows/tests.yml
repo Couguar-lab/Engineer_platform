@@ -23,16 +23,25 @@ jobs:
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
 
+    - name: Generate fake SECRET_KEY for tests
+      run: |
+        echo "SECRET_KEY=$(openssl rand -hex 32)" >> .env
+        echo "DEBUG=True" >> .env
+        echo "ALLOWED_HOSTS=localhost,127.0.0.1" >> .env
+        # Добавь другие обязательные переменные, если нужно
+        # echo "DB_NAME=test_db" >> .env
+        # etc.
+
     - name: Erase previous coverage data
       run: coverage erase
 
-    - name: Run tests with coverage (single process)
+    - name: Run tests with coverage
       run: coverage run -m pytest --no-cov-on-fail
 
-    - name: Generate coverage report
+    - name: Coverage report
       run: coverage report --fail-under=80
 
-    - name: Generate HTML coverage report
+    - name: Coverage HTML
       run: coverage html
 
     - name: Upload coverage report artifact
