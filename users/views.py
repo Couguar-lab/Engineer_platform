@@ -18,10 +18,29 @@ from themes.models import Theme
 
 from .models import User
 
+firebase_app = None
+firebase_auth_module = None
+
+def init_firebase():
+    global firebase_app, firebase_auth_module
+    if firebase_app is None:
+        # Пропускаем в тестах и в DEBUG-режиме без реального использования
+        if 'test' in sys.argv or settings.DEBUG and not 'runserver' in sys.argv:
+            from unittest.mock import MagicMock
+            firebase_auth_module = MagicMock()
+            firebase_app = MagicMock()
+            return firebase_auth_module
+
+        # Реальная инициализация
+        cred = credentials.Certificate(settings.FIREBASE_CREDENTIALS_PATH)
+        firebase_app = firebase_admin.initialize_app(cred)
+        firebase_auth_module = firebase_auth
+    return firebase_auth_module
+
 # Инициализация Firebase один раз при загрузке модуля
-if not firebase_admin._apps:
-    cred = credentials.Certificate(settings.FIREBASE_CREDENTIALS_PATH)
-    firebase_admin.initialize_app(cred)
+# if not firebase_admin._apps:
+#     cred = credentials.Certificate(settings.FIREBASE_CREDENTIALS_PATH)
+#     firebase_admin.initialize_app(cred)
 
 
 @require_http_methods(["GET", "POST"])
