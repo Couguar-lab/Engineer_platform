@@ -1,8 +1,8 @@
 name: Deploy to Yandex Cloud VM
 
 on:
-  push:
-    branches: [ "main", "develop", "feature/yandex" ]
+  pull_request:
+    branches: [ "develop", "feature/yandex" ]
 
 jobs:
   deploy:

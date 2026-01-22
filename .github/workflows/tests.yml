@@ -1,8 +1,6 @@
 name: Tests
 
 on:
-  push:
-    branches: [ "develop", "feature/yandex" ]
   pull_request:
     branches: [ "develop", "feature/yandex" ]
 
@@ -23,17 +21,33 @@ jobs:
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
 
-    - name: Generate fake SECRET_KEY for tests
+    - name: Generate fake .env for tests
       run: |
         echo "SECRET_KEY=$(openssl rand -hex 32)" >> .env
         echo "DEBUG=True" >> .env
-        echo "ALLOWED_HOSTS=localhost,127.0.0.1" >> .env
-        # Добавь другие обязательные переменные, если нужно
-        # echo "DB_NAME=test_db" >> .env
-        # etc.
+        echo "ALLOWED_HOSTS=localhost,127.0.0.1,testserver" >> .env
+        echo "DB_NAME=test_db" >> .env
+        echo "DB_USER=test_user" >> .env
+        echo "DB_PASSWORD=test_pass" >> .env
+        echo "DB_HOST=localhost" >> .env
+        echo "DB_PORT=5432" >> .env
+        echo "JWT_SECRET=test_jwt_secret" >> .env
+        echo "STRIPE_SECRET_KEY=test_stripe_secret" >> .env
+        echo "STRIPE_PUBLISHABLE_KEY=test_stripe_pub" >> .env
+        echo "STRIPE_WEBHOOK_SECRET=test_webhook" >> .env
+        echo "FIREBASE_CREDENTIALS_PATH=/app/secrets/test.json" >> .env
+        echo "FIREBASE_API_KEY=test_api_key" >> .env
+        echo "FIREBASE_AUTH_DOMAIN=test.firebaseapp.com" >> .env
+        echo "FIREBASE_PROJECT_ID=test_project" >> .env
+        echo "FIREBASE_STORAGE_BUCKET=test.appspot.com" >> .env
+        echo "FIREBASE_MESSAGING_SENDER_ID=123456789" >> .env
+        echo "FIREBASE_APP_ID=1:123456789:web:testapp" >> .env
 
     - name: Erase previous coverage data
       run: coverage erase
+
+    - name: Clear coverage cache
+      run: rm -rf .coverage* htmlcov
 
     - name: Run tests with coverage
       run: coverage run -m pytest --no-cov-on-fail
