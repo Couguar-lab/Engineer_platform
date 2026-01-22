@@ -1,29 +1,41 @@
 name: Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ "main", "develop", "feature/yandex" ]
+  pull_request:
+    branches: [ "main", "develop", "feature/yandex" ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
+
     - name: Install dependencies
       run: |
+        python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
-    - name: Erase coverage data
+
+    - name: Erase previous coverage data
       run: coverage erase
-    - name: Run tests with coverage
-      run: coverage run --parallel-mode -m pytest
-    - name: Coverage report
-      run: coverage report
-    - name: Coverage HTML
+
+    - name: Run tests with coverage (single process)
+      run: coverage run -m pytest --no-cov-on-fail
+
+    - name: Generate coverage report
+      run: coverage report --fail-under=80
+
+    - name: Generate HTML coverage report
       run: coverage html
-    - name: Upload coverage report
+
+    - name: Upload coverage report artifact
       uses: actions/upload-artifact@v4
       with:
         name: coverage-report
