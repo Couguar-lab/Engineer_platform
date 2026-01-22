@@ -18,11 +18,10 @@ from themes.models import Theme
 
 from .models import User
 
-if not settings.DEBUG and not 'test' in sys.argv:
-    # Инициализация Firebase один раз при загрузке модуля
-    if not firebase_admin._apps:
-        cred = credentials.Certificate(settings.FIREBASE_CREDENTIALS_PATH)
-        firebase_admin.initialize_app(cred)
+# Инициализация Firebase один раз при загрузке модуля
+if not firebase_admin._apps:
+    cred = credentials.Certificate(settings.FIREBASE_CREDENTIALS_PATH)
+    firebase_admin.initialize_app(cred)
 
 
 @require_http_methods(["GET", "POST"])
