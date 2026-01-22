@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [ "main", "develop", "feature/yandex" ]
+    branches: [ "develop", "feature/yandex" ]
   pull_request:
-    branches: [ "main", "develop", "feature/yandex" ]
+    branches: [ "develop", "feature/yandex" ]
 
 jobs:
   test:
