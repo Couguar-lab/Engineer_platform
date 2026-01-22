@@ -127,7 +127,7 @@ STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET")
 
 # Firebase
-FIREBASE_CREDENTIALS_PATH = env("FIREBASE_CREDENTIALS_PATH")
+FIREBASE_CREDENTIALS_PATH = BASE_DIR / "secrets" / "engineer-platform-auth-firebase-adminsdk-fbsvc-9c58ee2774.json"
 FIREBASE_CONFIG = {
     "apiKey": env("FIREBASE_API_KEY"),
     "authDomain": env("FIREBASE_AUTH_DOMAIN"),

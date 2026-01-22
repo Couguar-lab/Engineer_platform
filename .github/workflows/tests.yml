@@ -13,10 +13,18 @@ jobs:
         python-version: '3.12'
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
-    - name: Run tests
-      run: coverage run -m pytest
+    - name: Erase coverage data
+      run: coverage erase
+    - name: Run tests with coverage
+      run: coverage run --parallel-mode -m pytest
     - name: Coverage report
       run: coverage report
+    - name: Coverage HTML
+      run: coverage html
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: htmlcov/
