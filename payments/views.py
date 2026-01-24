@@ -4,7 +4,7 @@ import stripe
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -14,6 +14,9 @@ from users.models import User
 
 from .models import Subscription
 from .stripe_utils import create_checkout_session
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 @login_required
@@ -94,3 +97,44 @@ def stripe_webhook(request: HttpRequest) -> HttpResponse:
             return HttpResponse(status=400)
 
     return HttpResponse(status=200)
+
+
+def subscription_info(request: HttpRequest) -> HttpResponse:
+    """
+    Отображает страницу с информацией о подписке и актуальными тарифами из Stripe.
+    Запрашивает активные продукты и их цены (recurring) через Stripe API.
+    """
+    try:
+        # Получаем все активные продукты
+        products = stripe.Product.list(active=True, expand=["data.default_price"])
+
+        plans = []
+        for product in products.auto_paging_iter():
+            price = product.default_price
+            if price and price.recurring:
+                plans.append({
+                    'product_id': product.id,
+                    'product_name': product.name,
+                    'price_id': price.id,
+                    'amount': price.unit_amount / 100,  # в рублях/долларах и т.д.
+                    'currency': price.currency.upper(),
+                    'interval': price.recurring.interval,  # month, year
+                    'interval_count': price.recurring.interval_count,
+                    'description': product.description or "Подписка на эксклюзивный контент",
+                })
+
+        # Сортируем по цене (по возрастанию)
+        plans.sort(key=lambda x: x['amount'])
+
+    except stripe.error.StripeError as e:
+        # Если ошибка — показываем пустой список, но не падаем
+        plans = []
+        print(f"Stripe API error in subscription_info: {e}")
+
+    context = {
+        'title': 'Подписка',
+        'plans': plans,
+        'has_plans': len(plans) > 0,
+    }
+
+    return render(request, 'payments/subscription_info.html', context)
