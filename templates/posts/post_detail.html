@@ -39,6 +39,17 @@
             </div>
           </div>
         </div>
+        <!-- Форма жалобы -->
+      <div class="mt-5">
+        <h5>Пожаловаться на пост</h5>
+        <form method="post" action="{% url 'complain_post' post.id %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <textarea name="reason" class="form-control" rows="3" placeholder="Укажите причину жалобы..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-danger btn-sm">Отправить жалобу</button>
+        </form>
+      </div>
       {% else %}
         <!-- Teaser + подписка -->
         <div class="alert alert-info shadow-sm">
