@@ -15,6 +15,7 @@ urlpatterns = [
     path("notifications/", include("notifications.urls")),
     # Подписка
     path("subscribe/<int:author_id>/<int:period>/", create_subscription, name="create_subscription"),
+    path("payments/", include("payments.urls")),
     # Webhook Stripe
     path("webhook/stripe/", stripe_webhook, name="stripe_webhook"),
 ]
