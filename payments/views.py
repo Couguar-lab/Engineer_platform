@@ -1,4 +1,3 @@
-# payments/views.py (обновлённый)
 from datetime import timedelta
 
 import stripe
@@ -105,6 +104,8 @@ def subscription_info(request: HttpRequest) -> HttpResponse:
     Отображает страницу с информацией о подписке и актуальными тарифами из Stripe.
     Запрашивает активные продукты и их цены (recurring) через Stripe API.
     """
+    author_id = request.GET.get("author_id")  # Получаем author_id из GET-параметра (если пришёл из поста)
+
     try:
         # Получаем все активные продукты
         products = stripe.Product.list(active=True)
@@ -141,6 +142,7 @@ def subscription_info(request: HttpRequest) -> HttpResponse:
         'title': 'Подписка',
         'plans': plans,
         'has_plans': len(plans) > 0,
+        'author_id': author_id,  # Передаём в шаблон для использования в ссылках "Оформить"
     }
 
     return render(request, 'payments/subscription_info.html', context)

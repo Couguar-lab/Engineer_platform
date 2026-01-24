@@ -29,10 +29,16 @@
                                 каждые {{ plan.interval_count }} {{ plan.interval }}{% if plan.interval_count > 1 %}а{% endif %}
                             </p>
                             <p class="flex-grow-1">{{ plan.description }}</p>
-                            <!-- Замена на рабочую кнопку "Оформить" (если нужно, убери disabled и подключи форму) -->
-                            <a href="{% url 'create_subscription' author_id=some_author_id period=plan.interval_count %}" class="btn btn-lg btn-outline-primary mt-auto">
-                                Оформить
-                            </a>
+                            <!-- Рабочая кнопка "Оформить" с author_id из GET (если есть), иначе disabled -->
+                            {% if author_id %}
+                                <a href="{% url 'create_subscription' author_id=author_id period=plan.interval_count %}" class="btn btn-lg btn-outline-primary mt-auto">
+                                    Оформить
+                                </a>
+                            {% else %}
+                                <a href="#" class="btn btn-lg btn-outline-primary mt-auto disabled">
+                                    Оформить
+                                </a>
+                            {% endif %}
                             <small class="text-muted mt-2">Оплата через Stripe (тестовый режим)</small>
                         </div>
                     </div>
