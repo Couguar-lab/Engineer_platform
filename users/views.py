@@ -4,7 +4,7 @@ import sys
 import firebase_admin
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login, logout
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
@@ -16,6 +16,7 @@ from firebase_admin import credentials, initialize_app
 from payments.models import Subscription
 from themes.models import Theme
 
+from .forms import UserLoginForm, UserRegistrationForm
 from .models import User
 
 firebase_app = None
@@ -46,35 +47,44 @@ def init_firebase():
 @require_http_methods(["GET", "POST"])
 def login_view(request: HttpRequest) -> HttpResponse:
     """
-    Страница входа по номеру телефона + отправка OTP через Firebase (клиентская сторона).
+    Страница входа по номеру телефона и паролю.
     """
-    return render(request, "registration/login.html")
+    if request.method == "POST":
+        form = UserLoginForm(request, data=request.POST)
+        if form.is_valid():
+            user = authenticate(request, username=form.cleaned_data["username"], password=form.cleaned_data["password"])
+            if user is not None:
+                login(request, user)
+                messages.success(request, "Вход выполнен успешно!")
+                return redirect("post_list")
+            else:
+                messages.error(request, "Неверный логин или пароль")
+        else:
+            messages.error(request, "Неверный логин или пароль")
+    else:
+        form = UserLoginForm()
+
+    return render(request, "registration/login.html", {"form": form})
 
 
 @require_http_methods(["GET", "POST"])
-def otp_verify_view(request: HttpRequest) -> HttpResponse:
+def register_view(request: HttpRequest) -> HttpResponse:
+    """
+    Страница регистрации: телефон + пароль + подтверждение.
+    Создаёт пользователя с is_author=True.
+    """
     if request.method == "POST":
-        otp_code = request.POST.get("otp")
-        phone_number = request.session.get("phone_number")
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.is_author = True  # Делаем пользователя автором
+            user.save()
+            messages.success(request, "Регистрация успешна! Теперь вы можете войти.")
+            return redirect("login")
+    else:
+        form = UserRegistrationForm()
 
-        if not phone_number or not otp_code:
-            messages.error(request, "Недостаточно данных")
-            return render(request, "registration/otp_verify.html")
-
-        # Для тестового режима — просто проверяем код (если номер тестовый)
-        # В production — здесь будет firebase_auth.verify_id_token(id_token)
-        if otp_code == "123456":
-            user, created = User.objects.get_or_create(phone_number=phone_number, defaults={"is_active": True})
-            if created:
-                user.save()
-            login(request, user)
-            messages.success(request, "Вход выполнен успешно!")
-            del request.session["phone_number"]
-            return redirect("post_list")
-        else:
-            messages.error(request, "Неверный код OTP")
-
-    return render(request, "registration/otp_verify.html")
+    return render(request, "users/register.html", {"form": form})
 
 
 def logout_view(request: HttpRequest) -> HttpResponse:

@@ -27,15 +27,18 @@
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
+                            <!-- Колокольчик с уведомлением -->
                             <a class="nav-link" href="{% url 'notification_list' %}">
-                                <!-- Колокольчик с бейджем уведомлений -->
-                                <i class="bi bi-bell fs-4 position-relative"></i>
-                                {% if unread_notifications > 0 %}
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                        {{ unread_notifications }}
-                                        <span class="visually-hidden">непрочитанных уведомлений</span>
-                                    </span>
-                                {% endif %}
+                                <span class="position-relative">  <!-- Добавляем обёртку для точного позиционирования -->
+                                    <i class="bi bi-bell fs-4"></i>  <!-- Убрал position-relative с i, теперь на span -->
+                                    {% if unread_notifications > 0 %}
+                                        <span class="position-absolute badge rounded-pill bg-danger"
+                                              style="top: -5px; right: -8px; min-width: 20px; height: 20px; line-height: 20px; font-size: 12px;">
+                                            {{ unread_notifications }}
+                                            <span class="visually-hidden">непрочитанных уведомлений</span>
+                                        </span>
+                                    {% endif %}
+                                </span>
                             </a>
                         </li>
                         <li class="nav-item">
