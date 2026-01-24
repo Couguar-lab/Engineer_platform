@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: [ "develop", "feature/yandex" ]
 
+  push:
+    branches: [ "develop", "feature/yandex" ]
+
 jobs:
   test:
     runs-on: ubuntu-latest
