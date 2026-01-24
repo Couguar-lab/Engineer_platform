@@ -34,11 +34,12 @@
     document.getElementById('phone-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const phone = document.getElementById('phone_number').value;
+
       try {
-        // Без reCAPTCHA — Firebase разрешит только для тестовых номеров
+        // Для тестовых номеров reCAPTCHA не нужна, но Firebase требует объект (можно передать null)
         const confirmationResult = await signInWithPhoneNumber(auth, phone, null);
-        window.confirmationResult = confirmationResult;
-        alert('OTP отправлен (или используй тестовый код из Firebase)!');
+        window.confirmationResult = confirmationResult; // сохраняем для otp_verify
+        alert('OTP отправлен! Для тестового номера введите код из Firebase Console.');
         window.location.href = "{% url 'otp_verify' %}";
       } catch (error) {
         console.error(error);
