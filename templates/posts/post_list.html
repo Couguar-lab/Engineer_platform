@@ -29,14 +29,9 @@
                   <small>Платный контент</small>
                 </div>
                 <div class="d-flex flex-wrap gap-2">
-                  {% for months, label in periods %}
-                    <form method="post" action="{% url 'create_subscription' post.author.id months %}">
-                      {% csrf_token %}
-                      <button type="submit" class="btn btn-sm btn-primary">
-                        {{ label }} ({{ prices|get_item:months }} ₽)
-                      </button>
-                    </form>
-                  {% endfor %}
+                  <a href="{% url 'subscription_info' %}" class="btn btn-primary">
+                    Купить подписку
+                  </a>
                 </div>
               {% else %}
                 <a href="{% url 'post_detail' post.id %}" class="btn btn-primary">Читать</a>
