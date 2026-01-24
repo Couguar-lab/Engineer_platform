@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Engineer Platform{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1>Контакты</h1>
+        <p class="lead">Свяжитесь с нами удобным способом:</p>
+
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Email:</strong> {{ email }}</li>
+            <li class="list-group-item"><strong>Telegram:</strong> {{ telegram }}</li>
+            <!-- Добавить WhatsApp, форму и т.д. -->
+        </ul>
+
+        <p class="mt-4">Мы отвечаем в течение 24 часов.</p>
+    </div>
+{% endblock %}

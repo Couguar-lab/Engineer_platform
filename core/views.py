@@ -1,3 +1,13 @@
-# from django.shortcuts import render
+from django.shortcuts import render
 
-# Create your views here.
+def contacts(request):
+    """
+    Отображает страницу контактов.
+    """
+    context = {
+        'title': 'Контакты',
+        'email': 'support@engineer-platform.ru', # пока пример
+        'telegram': '@Cuguar',                   # пока пример
+        # добавь телефон, форму обратной связи и т.д.
+    }
+    return render(request, 'core/contacts.html', context)

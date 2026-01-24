@@ -3,6 +3,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from core.views import contacts
 from payments.views import create_subscription, stripe_webhook
 
 urlpatterns = [
@@ -18,6 +19,8 @@ urlpatterns = [
     path("payments/", include("payments.urls")),
     # Webhook Stripe
     path("webhook/stripe/", stripe_webhook, name="stripe_webhook"),
+    # Контакты
+    path("contacts/", contacts, name="contacts"),
 ]
 
 # Поддержка media в debug-режиме
