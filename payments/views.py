@@ -1,3 +1,4 @@
+# payments/views.py (обновлённый)
 from datetime import timedelta
 
 import stripe
@@ -106,12 +107,17 @@ def subscription_info(request: HttpRequest) -> HttpResponse:
     """
     try:
         # Получаем все активные продукты
-        products = stripe.Product.list(active=True, expand=["data.default_price"])
+        products = stripe.Product.list(active=True)
 
         plans = []
         for product in products.auto_paging_iter():
-            price = product.default_price
-            if price and price.recurring:
+            # Получаем все активные recurring цены для этого продукта
+            prices = stripe.Price.list(
+                product=product.id,
+                active=True,
+                type="recurring"
+            )
+            for price in prices.auto_paging_iter():
                 plans.append({
                     'product_id': product.id,
                     'product_name': product.name,
